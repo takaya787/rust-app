@@ -1,8 +1,25 @@
+use super::schema::*;
 use chrono::NaiveDateTime;
 
 #[derive(Debug, Queryable)]
 pub struct User {
   pub id: i64,
+  pub name: Option<String>,
+  pub email: Option<String>,
+  pub created_at: NaiveDateTime,
+  pub updated_at: NaiveDateTime,
+  pub password_digest: Option<String>,
+  pub admin: bool,
+  pub activation_digest: Option<String>,
+  pub activated: Option<bool>,
+  pub activated_at: Option<NaiveDateTime>,
+  pub reset_digest: Option<String>,
+  pub reset_sent_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Queryable, Insertable)]
+#[table_name = "users"]
+pub struct NewUser {
   pub name: Option<String>,
   pub email: Option<String>,
   pub created_at: NaiveDateTime,
