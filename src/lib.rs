@@ -35,7 +35,7 @@ pub fn create_user<'a>(conn: &PgConnection, name: &'a str, email: &'a str, passw
     password_digest: Some(String::from(password_hash)),
     admin: false,
     activation_digest: None,
-    activated: Some(false),
+    activated: Some(true),
     activated_at: None,
     reset_digest: None,
     reset_sent_at: None,
@@ -43,6 +43,16 @@ pub fn create_user<'a>(conn: &PgConnection, name: &'a str, email: &'a str, passw
 
   diesel::insert_into(users::table)
     .values(&new_user)
-    .get_result(conn)
+    .get_result::<User>(conn)
     .expect("Error saving new user")
+}
+
+pub fn delete_user(conn: &PgConnection, user_name: &str) {
+  use schema::users::dsl::*;
+
+  let deleted_user: User = diesel::delete(users.filter(name.eq(user_name)))
+    .get_result(conn)
+    .expect(&format!("Unable to find User, name is {}", user_name));
+
+  println!("Deleted User: {:?}", deleted_user);
 }

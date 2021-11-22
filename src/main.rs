@@ -2,7 +2,7 @@ extern crate app;
 extern crate bcrypt;
 extern crate diesel;
 
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::verify;
 
 use self::app::*;
 use self::diesel::prelude::*;
@@ -36,19 +36,18 @@ fn main() {
         "railexample@gmail.com",
         "password",
     );
-    print_user(new_user);
+    print_user(&new_user);
+
+    delete_user(&connection, &new_user.name.unwrap());
 }
 
-fn print_user(user: User) {
-    println!("user_name: {}", user.name.unwrap());
-    let user_password: String = String::from(user.password_digest.unwrap());
+fn print_user(user: &User) {
+    println!("user_name: {}", user.name.as_ref().unwrap());
+    let user_password: String = String::from(user.password_digest.as_ref().unwrap());
     println!("password_salt: {}", &user_password[0..30]);
     println!("password_hash: {}", &user_password[30..]);
     println!("password_digest: {}", user_password);
-    println!(
-        "password to hash: {}",
-        hash("password", DEFAULT_COST).unwrap()
-    );
+    println!("------------------------------------------------");
     println!("valid: {}", verify("password", &user_password).unwrap());
-    println!("------------------------------------------------")
+    println!("------------------------------------------------");
 }
