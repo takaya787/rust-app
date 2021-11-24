@@ -63,8 +63,8 @@ table! {
 table! {
     relationships (id) {
         id -> Int8,
-        follower_id -> Int8,
-        followed_id -> Int8,
+        follower_id -> Nullable<Int4>,
+        followed_id -> Nullable<Int4>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
