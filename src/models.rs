@@ -2,6 +2,7 @@ use super::schema::*;
 use chrono::NaiveDateTime;
 
 #[derive(Debug, Queryable, Identifiable, PartialEq)]
+#[table_name = "users"]
 pub struct User {
   pub id: i64,
   pub name: Option<String>,
@@ -44,7 +45,8 @@ pub struct Micropost {
   pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Queryable, PartialEq)]
+#[derive(Debug, Queryable, Identifiable)]
+#[table_name = "relationships"]
 pub struct Relationship {
   pub id: i64,
   pub follower_id: Option<i32>,

@@ -8,6 +8,7 @@ use self::app::*;
 use self::diesel::prelude::*;
 use self::models::*;
 
+pub mod features;
 fn main() {
     use app::schema::microposts::dsl::*;
     use app::schema::users::dsl::*;
@@ -26,22 +27,25 @@ fn main() {
         .load::<Micropost>(&connection)
         .expect("Error loading microposts");
 
+    features::fetch_microposts::fetch_microposts_each_user();
+    features::fetch_microposts::fetch_feed_relationship();
+
     // println!("Displaying users {:#?}", result_users);
 
     // println!("Displaying models {:#?}", result_microposts);
 
-    let new_user = create_user(
-        &connection,
-        "sample_name",
-        "railexample@gmail.com",
-        "password",
-    );
-    print_user(&new_user);
+    // let new_user = create_user(
+    //     &connection,
+    //     "sample_name",
+    //     "railexample@gmail.com",
+    //     "password",
+    // );
+    // print_user(&new_user);
 
-    delete_user(&connection, &new_user.name.unwrap());
+    // delete_user(&connection, &new_user.name.unwrap());
 }
 
-fn print_user(user: &User) {
+fn _print_user(user: &User) {
     println!("user_name: {}", user.name.as_ref().unwrap());
     let user_password: String = String::from(user.password_digest.as_ref().unwrap());
     println!("password_salt: {}", &user_password[0..30]);
