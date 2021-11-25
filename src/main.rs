@@ -40,9 +40,9 @@ fn world() -> &'static str {
 }
 #[launch]
 fn rocket() -> _ {
-    helpers::fetch_microposts::fetch_microposts_each_user();
+    // helpers::fetch_microposts::fetch_microposts_each_user();
     helpers::fetch_microposts::fetch_feed_relationship();
-    rocket::build().mount("/hello", routes![index, world])
+    rocket::build().mount("/api", routes![index, world])
 }
 
 fn _print_user(user: &User) {
