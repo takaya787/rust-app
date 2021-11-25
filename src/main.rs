@@ -11,7 +11,7 @@ use self::app::*;
 // use self::diesel::prelude::*;
 use self::models::*;
 
-pub mod features;
+pub mod helpers;
 // fn main() {
 
 // println!("Displaying users {:#?}", result_users);
@@ -40,8 +40,8 @@ fn world() -> &'static str {
 }
 #[launch]
 fn rocket() -> _ {
-    // features::fetch_microposts::fetch_microposts_each_user();
-    // features::fetch_microposts::fetch_feed_relationship();
+    helpers::fetch_microposts::fetch_microposts_each_user();
+    helpers::fetch_microposts::fetch_feed_relationship();
     rocket::build().mount("/hello", routes![index, world])
 }
 
