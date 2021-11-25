@@ -40,7 +40,7 @@ pub fn fetch_microposts_each_user() -> MicropostsTypeEachUser {
     .zip(microposts)
     .collect::<Vec<_>>();
 
-  // println!("microposts_data with each user = {:?}", data);
+  println!("microposts_data with each user = {:?}", data);
   data
 }
 
@@ -89,6 +89,6 @@ pub fn fetch_feed_relationship() {
   //   .load::<Following>(&connection)
   //   .unwrap();
 
-  println!("following_users: {:?}", following_users);
+  // println!("following_users: {:?}", following_users);
   println!("feed_microposts {:?}", following_users_feed);
 }

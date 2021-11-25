@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate rocket;
+
 extern crate app;
 extern crate bcrypt;
 extern crate diesel;
@@ -5,44 +8,41 @@ extern crate diesel;
 use bcrypt::verify;
 
 use self::app::*;
-use self::diesel::prelude::*;
+// use self::diesel::prelude::*;
 use self::models::*;
 
 pub mod features;
-fn main() {
-    use app::schema::microposts::dsl::*;
-    use app::schema::users::dsl::*;
+// fn main() {
 
-    let connection = establish_connection();
+// println!("Displaying users {:#?}", result_users);
 
-    let _result_users = users
-        .filter(activated.eq(true))
-        .limit(5)
-        .load::<User>(&connection)
-        .expect("Error loading users");
+// println!("Displaying models {:#?}", result_microposts);
 
-    let _result_microposts = microposts
-        .filter(user_id.eq(1))
-        .limit(5)
-        .load::<Micropost>(&connection)
-        .expect("Error loading microposts");
+// let new_user = create_user(
+//     &connection,
+//     "sample_name",
+//     "railexample@gmail.com",
+//     "password",
+// );
+// print_user(&new_user);
 
-    features::fetch_microposts::fetch_microposts_each_user();
-    features::fetch_microposts::fetch_feed_relationship();
+// delete_user(&connection, &new_user.name.unwrap());
+// }
 
-    // println!("Displaying users {:#?}", result_users);
+#[get("/index")]
+fn index() -> &'static str {
+    "Hello, world!"
+}
 
-    // println!("Displaying models {:#?}", result_microposts);
-
-    // let new_user = create_user(
-    //     &connection,
-    //     "sample_name",
-    //     "railexample@gmail.com",
-    //     "password",
-    // );
-    // print_user(&new_user);
-
-    // delete_user(&connection, &new_user.name.unwrap());
+#[get("/world")]
+fn world() -> &'static str {
+    "Hello, world!"
+}
+#[launch]
+fn rocket() -> _ {
+    // features::fetch_microposts::fetch_microposts_each_user();
+    // features::fetch_microposts::fetch_feed_relationship();
+    rocket::build().mount("/hello", routes![index, world])
 }
 
 fn _print_user(user: &User) {
@@ -50,7 +50,7 @@ fn _print_user(user: &User) {
     let user_password: String = String::from(user.password_digest.as_ref().unwrap());
     println!("password_salt: {}", &user_password[0..30]);
     println!("password_hash: {}", &user_password[30..]);
-    println!("password_digest: {}", user_password);
+    // println!("password_digest: {}", user_password);
     println!("------------------------------------------------");
     println!("valid: {}", verify("password", &user_password).unwrap());
     println!("------------------------------------------------");
