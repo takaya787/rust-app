@@ -4,6 +4,16 @@ use chrono::Utc;
 use diesel::prelude::*;
 use models::{NewUser, User};
 
+// GET /users
+pub fn get_all_users(conn: &PgConnection) -> QueryResult<Vec<User>> {
+  use schema::users::dsl::*;
+
+  let results = users.filter(activated.eq(true)).load::<User>(conn);
+
+  results
+}
+
+// Post /users
 pub fn create_user<'a>(
   conn: &PgConnection,
   name: &'a str,
@@ -33,6 +43,7 @@ pub fn create_user<'a>(
     .get_result::<User>(conn)
 }
 
+//  DELETE /users/{:id}
 pub fn delete_user(conn: &PgConnection, user_name: &str) -> QueryResult<User> {
   use schema::users::dsl::*;
 

@@ -5,6 +5,7 @@ extern crate app;
 extern crate bcrypt;
 extern crate diesel;
 
+pub mod controllers;
 pub mod helpers;
 
 use bcrypt::verify;
@@ -58,8 +59,17 @@ fn delete_user() -> &'static str {
 #[launch]
 fn rocket() -> _ {
     // helpers::fetch_microposts::fetch_microposts_each_user();
-    helpers::fetch_microposts::fetch_feed_relationship();
-    rocket::build().mount("/api", routes![index, world, create_user, delete_user])
+    // helpers::fetch_microposts::fetch_feed_relationship();
+    rocket::build().mount(
+        "/api",
+        routes![
+            index,
+            world,
+            create_user,
+            delete_user,
+            controllers::users::index
+        ],
+    )
 }
 
 fn _print_user(user: &User) {
