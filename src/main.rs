@@ -5,29 +5,13 @@ extern crate app;
 extern crate bcrypt;
 extern crate diesel;
 
+pub mod helpers;
+
 use bcrypt::verify;
 
 use self::app::*;
 // use self::diesel::prelude::*;
 use self::models::*;
-
-pub mod helpers;
-// fn main() {
-
-// println!("Displaying users {:#?}", result_users);
-
-// println!("Displaying models {:#?}", result_microposts);
-
-// let new_user = create_user(
-//     &connection,
-//     "sample_name",
-//     "railexample@gmail.com",
-//     "password",
-// );
-// print_user(&new_user);
-
-// delete_user(&connection, &new_user.name.unwrap());
-// }
 
 #[get("/index")]
 fn index() -> &'static str {
@@ -38,11 +22,44 @@ fn index() -> &'static str {
 fn world() -> &'static str {
     "Hello, world!"
 }
+
+#[get("/create_user")]
+fn create_user() -> &'static str {
+    let conn = establish_connection();
+    let result = helpers::users::create_user(&conn, "sample", "sample@gmail.com", "password");
+    match result {
+        Ok(user) => {
+            println!("{:?}", user);
+            "User created"
+        }
+        Err(e) => {
+            println!("{:?}", e);
+            "User not created"
+        }
+    }
+}
+
+#[get("/delete_user")]
+fn delete_user() -> &'static str {
+    let conn = establish_connection();
+    let result = helpers::users::delete_user(&conn, "sample");
+    match result {
+        Ok(user) => {
+            println!("{:?}", user);
+            "User deleted"
+        }
+        Err(e) => {
+            println!("{:?}", e);
+            "User not deleted"
+        }
+    }
+}
+
 #[launch]
 fn rocket() -> _ {
     // helpers::fetch_microposts::fetch_microposts_each_user();
     helpers::fetch_microposts::fetch_feed_relationship();
-    rocket::build().mount("/api", routes![index, world])
+    rocket::build().mount("/api", routes![index, world, create_user, delete_user])
 }
 
 fn _print_user(user: &User) {
