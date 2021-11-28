@@ -13,6 +13,13 @@ pub struct UserIndex {
   pub gravatar_url: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct UserPost {
+  pub user: UserIndex,
+  pub gravatar_url: String,
+  pub token: String,
+}
+
 #[get("/users")]
 pub fn index() -> Result<Json<Vec<UserIndex>>, Json<String>> {
   let connection = establish_connection();
@@ -43,17 +50,21 @@ pub fn index() -> Result<Json<Vec<UserIndex>>, Json<String>> {
 }
 
 #[post("/users", data = "<user_form>")]
-pub fn create(user_form: Form<models::UserForm>) -> Result<Json<UserIndex>, Json<String>> {
+pub fn create(user_form: Form<models::UserForm>) -> Result<Json<UserPost>, Json<String>> {
   let conn = establish_connection();
   println!("{:?}", user_form);
   let result = helpers::users::create_user(&conn, user_form);
   let json = match result {
     Ok(user) => {
-      let json = Json(UserIndex {
-        id: user.id,
-        name: user.name.clone().unwrap(),
-        email: user.email.clone().unwrap(),
+      let json = Json(UserPost {
+        user: UserIndex {
+          id: user.id,
+          name: user.name.clone().unwrap(),
+          email: user.email.clone().unwrap(),
+          gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
+        },
         gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
+        token: String::from("token"),
       });
       Ok(json)
     }

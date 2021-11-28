@@ -21,7 +21,6 @@ pub fn establish_connection() -> PgConnection {
 }
 
 pub fn get_gravator_url(email: &str) -> String {
-  // process input message hasher.update(user_email);
   let digest = compute(email);
   let result = format!("https://secure.gravatar.com/avatar/{:x}", digest);
   result
