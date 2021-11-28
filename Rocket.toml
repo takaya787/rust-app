@@ -4,3 +4,6 @@ port = 3030
 
 [global.databases]
 rustydb = { url = "postgres://root:password@db/api_development" }
+
+[global.limits]
+json = 5242880
