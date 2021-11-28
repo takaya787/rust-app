@@ -1,10 +1,10 @@
 use crate::{app, helpers};
-
-// use models::User;
 use app::*;
 use helpers::users::*;
+use rocket::serde::json::Json;
+use serde::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct UserIndex {
   pub id: i64,
   pub name: String,
@@ -13,12 +13,12 @@ pub struct UserIndex {
 }
 
 #[get("/users")]
-pub fn index() -> &'static str {
+pub fn index() -> Result<Json<Vec<UserIndex>>, Json<String>> {
   let connection = establish_connection();
 
-  let results = get_all_users(&connection);
+  let users = get_all_users(&connection);
 
-  match results {
+  let users_json = match users {
     Ok(users) => {
       println!("{}", users.len());
       let users_index = users
@@ -27,15 +27,16 @@ pub fn index() -> &'static str {
           id: user.id,
           name: user.name.clone().unwrap(),
           email: user.email.clone().unwrap(),
-          gravatar_url: gravator_for(user.clone()),
+          gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
         })
         .collect::<Vec<UserIndex>>();
-      println!("{:?}", users_index);
+      Ok(Json(users_index))
     }
     Err(error) => {
       println!("{}", error.to_string());
+      Err(Json(error.to_string()))
     }
-  }
+  };
 
-  "Users index"
+  users_json
 }
