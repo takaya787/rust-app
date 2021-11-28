@@ -1,7 +1,9 @@
 use super::schema::*;
 use chrono::NaiveDateTime;
+use rocket::form::FromForm;
+use serde::Deserialize;
 
-#[derive(Debug, Queryable, Identifiable, PartialEq)]
+#[derive(Debug, Queryable, Identifiable)]
 #[table_name = "users"]
 pub struct User {
   pub id: i64,
@@ -16,6 +18,17 @@ pub struct User {
   pub activated_at: Option<NaiveDateTime>,
   pub reset_digest: Option<String>,
   pub reset_sent_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Deserialize, FromForm)]
+pub struct UserForm<'r> {
+  pub name: &'r str,
+  pub email: &'r str,
+  #[field(validate = dbg_eq(self.password_confirmation))]
+  #[field(validate = len(7..20))]
+  pub password: &'r str,
+  #[field(validate = dbg_eq(self.password))]
+  pub password_confirmation: &'r str,
 }
 
 #[derive(Debug, Queryable, Insertable)]

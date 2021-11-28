@@ -2,7 +2,8 @@ use crate::{models, schema};
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;
-use models::{NewUser, User};
+use models::{NewUser, User, UserForm};
+use rocket::form::Form;
 
 // GET /users
 pub fn get_all_users(conn: &PgConnection) -> QueryResult<Vec<User>> {
@@ -14,19 +15,14 @@ pub fn get_all_users(conn: &PgConnection) -> QueryResult<Vec<User>> {
 }
 
 // Post /users
-pub fn create_user<'a>(
-  conn: &PgConnection,
-  name: &'a str,
-  email: &'a str,
-  password: &str,
-) -> QueryResult<User> {
+pub fn create_user<'a>(conn: &PgConnection, userform: Form<UserForm>) -> QueryResult<User> {
   use schema::users;
 
-  let password_hash = hash(password, DEFAULT_COST).expect("Error hashing password");
+  let password_hash = hash(userform.password, DEFAULT_COST).expect("Error hashing password");
 
   let new_user = NewUser {
-    name: Some(String::from(name)),
-    email: Some(String::from(email)),
+    name: Some(String::from(userform.name)),
+    email: Some(String::from(userform.email)),
     created_at: Utc::now().naive_utc(),
     updated_at: Utc::now().naive_utc(),
     password_digest: Some(String::from(password_hash)),
