@@ -1,8 +1,9 @@
-use crate::{app, helpers, models};
+use crate::{app, helpers};
 use app::*;
 use helpers::users::*;
 use rocket::form::Form;
-use rocket::serde::json::Json;
+use rocket::http::Status;
+use rocket::serde::json::json;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -13,20 +14,15 @@ pub struct UserIndex {
   pub gravatar_url: String,
 }
 
-#[derive(Debug, Serialize)]
-pub struct UserPost {
-  pub user: UserIndex,
-  pub gravatar_url: String,
-  pub token: String,
-}
-
 #[get("/users")]
-pub fn index() -> Result<Json<Vec<UserIndex>>, Json<String>> {
+pub fn index() -> ApiResponse {
   let connection = establish_connection();
 
-  let users = get_all_users(&connection);
+  let result = get_all_users(&connection);
 
-  let users_json = match users {
+  let error_response = handle_diesel_error(&result);
+
+  let response = match result {
     Ok(users) => {
       println!("{}", users.len());
       let users_index = users
@@ -38,40 +34,42 @@ pub fn index() -> Result<Json<Vec<UserIndex>>, Json<String>> {
           gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
         })
         .collect::<Vec<UserIndex>>();
-      Ok(Json(users_index))
+      ApiResponse {
+        status: Status::Ok,
+        json: json!(users_index),
+      }
     }
-    Err(error) => {
-      println!("{}", error.to_string());
-      Err(Json(error.to_string()))
-    }
+    Err(_err) => error_response.unwrap(),
   };
-
-  users_json
+  response
 }
 
 #[post("/users", data = "<user_form>")]
-pub fn create(user_form: Form<models::UserForm>) -> Result<Json<UserPost>, Json<String>> {
+pub fn create(user_form: Form<models::UserForm>) -> ApiResponse {
   let conn = establish_connection();
-  println!("{:?}", user_form);
+  // println!("{:?}", user_form);
   let result = helpers::users::create_user(&conn, user_form);
-  let json = match result {
+  let error_response = handle_diesel_error(&result);
+
+  let response = match result {
     Ok(user) => {
-      let json = Json(UserPost {
-        user: UserIndex {
-          id: user.id,
-          name: user.name.clone().unwrap(),
-          email: user.email.clone().unwrap(),
-          gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
+      let json = json!(
+        {
+        "user":  {
+          "id": user.id,
+          "name": user.name.clone().unwrap(),
+          "email": user.email.clone().unwrap(),
+          "gravatar_url": get_gravator_url(&user.email.as_ref().unwrap()),
         },
-        gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
-        token: String::from("token"),
+        "gravatar_url": get_gravator_url(&user.email.as_ref().unwrap()),
+        "token": String::from("token"),
       });
-      Ok(json)
+      ApiResponse {
+        status: Status::Ok,
+        json: json,
+      }
     }
-    Err(error) => {
-      println!("{:?}", error);
-      Err(Json(error.to_string()))
-    }
+    Err(_error) => error_response.unwrap(),
   };
-  json
+  response
 }
