@@ -12,7 +12,7 @@ use bcrypt::verify;
 
 use self::app::*;
 // use self::diesel::prelude::*;
-use self::models::*;
+use self::models::tables::*;
 
 #[get("/world")]
 fn world() -> &'static str {

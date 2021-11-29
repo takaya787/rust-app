@@ -1,6 +1,7 @@
 use crate::{app, helpers};
 use app::*;
 use helpers::users::*;
+use models::forms::*;
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::serde::json::json;
@@ -11,7 +12,7 @@ pub struct UserIndex {
   pub id: i64,
   pub name: String,
   pub email: String,
-  pub gravatar_url: String,
+  pub gravator_url: String,
 }
 
 #[get("/users")]
@@ -31,7 +32,7 @@ pub fn index() -> ApiResponse {
           id: user.id,
           name: user.name.clone().unwrap(),
           email: user.email.clone().unwrap(),
-          gravatar_url: get_gravator_url(&user.email.as_ref().unwrap()),
+          gravator_url: get_gravator_url(&user.email.as_ref().unwrap()),
         })
         .collect::<Vec<UserIndex>>();
       ApiResponse {
@@ -45,7 +46,7 @@ pub fn index() -> ApiResponse {
 }
 
 #[post("/users", data = "<user_form>")]
-pub fn create(user_form: Form<models::UserForm>) -> ApiResponse {
+pub fn create(user_form: Form<UserForm>) -> ApiResponse {
   let conn = establish_connection();
   // println!("{:?}", user_form);
   let result = helpers::users::create_user(&conn, user_form);
@@ -59,9 +60,9 @@ pub fn create(user_form: Form<models::UserForm>) -> ApiResponse {
           "id": user.id,
           "name": user.name.clone().unwrap(),
           "email": user.email.clone().unwrap(),
-          "gravatar_url": get_gravator_url(&user.email.as_ref().unwrap()),
+          "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
         },
-        "gravatar_url": get_gravator_url(&user.email.as_ref().unwrap()),
+        "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
         "token": String::from("token"),
       });
       ApiResponse {

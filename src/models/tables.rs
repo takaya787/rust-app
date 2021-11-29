@@ -1,4 +1,4 @@
-use super::schema::*;
+use crate::schema::*;
 use chrono::NaiveDateTime;
 use rocket::form::FromForm;
 use serde::Deserialize;

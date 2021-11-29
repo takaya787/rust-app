@@ -2,7 +2,8 @@ use crate::{models, schema};
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;
-use models::{NewUser, User, UserForm};
+use models::forms::UserForm;
+use models::tables::{NewUser, User};
 use rocket::form::Form;
 
 // GET /users

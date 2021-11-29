@@ -1,6 +1,6 @@
 use crate::app::*;
 use crate::diesel::prelude::*;
-use crate::models::{Micropost, User};
+use crate::models::tables::{Micropost, User};
 
 // return のtype Alias
 pub type MicropostsTypeEachUser = std::vec::Vec<(
@@ -9,7 +9,7 @@ pub type MicropostsTypeEachUser = std::vec::Vec<(
     std::option::Option<std::string::String>,
     std::option::Option<std::string::String>,
   ),
-  std::vec::Vec<app::models::Micropost>,
+  std::vec::Vec<Micropost>,
 )>;
 
 pub fn fetch_microposts_each_user() -> MicropostsTypeEachUser {
