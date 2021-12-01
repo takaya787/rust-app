@@ -8,9 +8,8 @@ extern crate diesel;
 pub mod controllers;
 pub mod helpers;
 
-use bcrypt::verify;
-
 use self::app::*;
+use bcrypt::verify;
 // use self::diesel::prelude::*;
 use self::models::tables::*;
 
@@ -37,8 +36,6 @@ fn delete_user() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    // helpers::fetch_microposts::fetch_microposts_each_user();
-    // helpers::fetch_microposts::fetch_feed_relationship();
     rocket::build().mount(
         "/api",
         routes![
@@ -48,6 +45,13 @@ fn rocket() -> _ {
             controllers::users::create,
         ],
     )
+    // .register(
+    //     "/api",
+    //     catchers![
+    //         controllers::errors::not_found,
+    //         controllers::errors::unprocessable_entity
+    //     ],
+    // )
 }
 
 fn _print_user(user: &User) {

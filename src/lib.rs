@@ -53,12 +53,11 @@ pub fn get_gravator_url(email: &str) -> String {
 
 pub fn handle_diesel_error<T>(result: &QueryResult<T>) -> Option<ApiResponse> {
   if let Err(e) = result {
-    println!("{:?}", e);
     match e {
-      Error::DatabaseError(kind, value) => Some(ApiResponse {
+      Error::DatabaseError(_, _) => Some(ApiResponse {
         status: Status::BadRequest,
         json: json!({
-          "errors": {"email": vec!["has already been taken"]},"message": format!("{:?}",kind),"value": format!("{:?}",value)
+          "errors": {"email": vec!["has already been taken"]}
         }),
       }),
       Error::NotFound => Some(ApiResponse {

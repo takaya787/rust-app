@@ -1,10 +1,25 @@
-use crate::{models, schema};
+use crate::{app, models, schema};
+use app::*;
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;
 use models::forms::UserForm;
 use models::tables::{NewUser, User};
-use rocket::form::Form;
+use rocket::form::{Contextual, Form};
+use rocket::http::Status;
+use rocket::serde::json::json;
+
+// Helper function to valdate a user form
+pub fn validate_user_form(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
+  let err_item = user_form.context.errors().next().unwrap();
+  let key: String = err_item.name.as_ref().unwrap().to_string();
+  let value: String = err_item.kind.to_string();
+
+  return ApiResponse {
+    status: Status::UnprocessableEntity,
+    json: json!({"errors":  {key: [value]}}),
+  };
+}
 
 // GET /users
 pub fn get_all_users(conn: &PgConnection) -> QueryResult<Vec<User>> {
@@ -16,7 +31,7 @@ pub fn get_all_users(conn: &PgConnection) -> QueryResult<Vec<User>> {
 }
 
 // Post /users
-pub fn create_user<'a>(conn: &PgConnection, userform: Form<UserForm>) -> QueryResult<User> {
+pub fn create_user<'a>(conn: &PgConnection, userform: &UserForm) -> QueryResult<User> {
   use schema::users;
 
   let password_hash = hash(userform.password, DEFAULT_COST).expect("Error hashing password");
