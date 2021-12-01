@@ -9,9 +9,8 @@ pub mod controllers;
 pub mod helpers;
 
 use self::app::*;
-use bcrypt::verify;
+use self::controllers::*;
 // use self::diesel::prelude::*;
-use self::models::tables::*;
 
 #[get("/world")]
 fn world() -> &'static str {
@@ -38,29 +37,6 @@ fn delete_user() -> &'static str {
 fn rocket() -> _ {
     rocket::build().mount(
         "/api",
-        routes![
-            world,
-            delete_user,
-            controllers::users::index,
-            controllers::users::create,
-        ],
+        routes![world, delete_user, users::index, users::create, users::show,],
     )
-    // .register(
-    //     "/api",
-    //     catchers![
-    //         controllers::errors::not_found,
-    //         controllers::errors::unprocessable_entity
-    //     ],
-    // )
-}
-
-fn _print_user(user: &User) {
-    println!("user_name: {}", user.name.as_ref().unwrap());
-    let user_password: String = String::from(user.password_digest.as_ref().unwrap());
-    println!("password_salt: {}", &user_password[0..30]);
-    println!("password_hash: {}", &user_password[30..]);
-    // println!("password_digest: {}", user_password);
-    println!("------------------------------------------------");
-    println!("valid: {}", verify("password", &user_password).unwrap());
-    println!("------------------------------------------------");
 }
