@@ -1,10 +1,10 @@
-use crate::{app, models, schema};
-use app::*;
+use crate::{models, rails_demo, schema};
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;
 use models::forms::UserForm;
 use models::tables::{Micropost, NewUser, User};
+use rails_demo::*;
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
 use rocket::serde::json::json;
