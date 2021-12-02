@@ -1,7 +1,7 @@
-use crate::{app, helpers};
-use app::*;
+use crate::{helpers, rails_demo};
 use helpers::users::*;
 use models::forms::*;
+use rails_demo::*;
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
 use rocket::serde::json::{json, Value};
