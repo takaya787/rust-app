@@ -1,17 +1,31 @@
 #  Rails Demo API with Rust
 
 ## Description
-これは、自分が作成した**Rails API**を**Rust**で再現したDemo APIです。<br>
-**Rails API**のレポジトリーは[こちら](https://github.com/takaya787/tut_backend)<br>
-**Rails API**の仕様書は[こちら(Swagger hub)](https://app.swaggerhub.com/apis/takaya787/rails-tutorial-api/1.0.0)
+This is a Demo API that reproduces my **Rails API** in **Rust**.<br>
+The **Rails API** repository is [here (Git hub)](https://github.com/takaya787/tut_backend)<br>
+The **Rails API's** `open API document` is [here (Swagger hub)](https://app.swaggerhub.com/apis/takaya787/rails-tutorial-api/1.0.0)
 
-## Implemented URLs
+## Why I create
+I was interested in creating an API in **Rust**, so I tried to create one using `diesel`, a popular **ORM** made by **rust**, and `rocket`, a framework also made by **rust**. <br> 
+As an **Rails developer**, I have realized how great the `shoulders of the Rails giants` were, and will soon publish an article comparing how to write `Rails` and `Rocket and Diesel`.
+
+## Features
+◆　User Functions 
+* create, delete , login, logout
+
+◆　Micropost Functions
+* create, delete , edit
+
+◆　Feed Function
+* Get microposts of users you follow
+
+## Available URLs
 
 ```YAML
 paths:
   "/api/login":
     post:
-    summary: login
+      summary: login
       description: to get the user token by email and password
       tags:
         - Api::Auth
@@ -24,7 +38,7 @@ paths:
   "/api/auto_feed":
     get:
       summary: auto_feed
-      description: to get feed micropost feeds
+      description: to get microposts feed of following users 
       tags:
         - Api::Auth
   "/api/microposts":
@@ -54,13 +68,8 @@ paths:
 * diesel 1.4.8
 * Docker, Docker-compose (開発環境)
 * Postgresql(DB)
-
-## 機能一覧
-◆　ユーザー機能 
-* 新規登録、ログイン、ログアウト
-
-◆　マイクロポスト機能
-* マイクロポスト作成、編集、消去
-
-◆　フィード機能
-* フォローしたユーザーのマイクロポストを表示
+* dotenv
+* chrono
+* bcrypt
+* serde
+* md5
