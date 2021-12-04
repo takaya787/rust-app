@@ -19,7 +19,7 @@ pub struct MicropostIndex {
 
 // get /auto_login
 #[derive(Debug, Serialize)]
-struct LoginUserIndex {
+pub struct LoginUserIndex {
   pub id: i64,
   pub name: String,
   pub email: String,
@@ -27,5 +27,10 @@ struct LoginUserIndex {
   pub activated: bool,
   pub activated_at: String,
   pub gravator_url: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LoginIndex {
+  pub user: LoginUserIndex,
   pub microposts: Vec<MicropostIndex>,
 }
