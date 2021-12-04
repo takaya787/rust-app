@@ -7,7 +7,10 @@ pub fn get_user_microposts(
   conn: &PgConnection,
   current_user: &User,
 ) -> QueryResult<Vec<Micropost>> {
-  let belonging_microposts = Micropost::belonging_to(current_user).load::<Micropost>(conn);
+  use crate::schema::microposts::dsl::*;
+  let belonging_microposts = Micropost::belonging_to(current_user)
+    .order(id.desc())
+    .load::<Micropost>(conn);
 
   belonging_microposts
 }
