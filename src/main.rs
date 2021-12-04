@@ -1,16 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
-extern crate bcrypt;
-extern crate diesel;
-extern crate rails_demo;
-
-pub mod controllers;
-pub mod helpers;
-
-use self::controllers::*;
-use crate::rails_demo::*;
-// use self::diesel::prelude::*;
+use controllers::*;
+use rails_demo::{controllers, establish_connection, helpers};
 
 #[get("/world")]
 fn world() -> &'static str {
