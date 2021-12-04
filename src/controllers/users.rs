@@ -1,10 +1,11 @@
-use crate::{helpers, rails_demo};
+use crate::*;
 use helpers::users::*;
 use models::forms::*;
-use rails_demo::*;
+
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
 use rocket::serde::json::{json, Value};
+use rocket::{get, post};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -24,7 +25,7 @@ pub struct MicropostIndex {
 }
 
 #[get("/users")]
-pub fn index() -> ApiResponse {
+pub fn index(current_user: UserAuthGuard) -> ApiResponse {
   let connection = establish_connection();
 
   let result = get_all_users(&connection);
@@ -101,7 +102,7 @@ pub fn create(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
 pub fn show(id: i64) -> ApiResponse {
   let conn = establish_connection();
 
-  let result = show_user(&conn, id);
+  let result = get_user_by_id(&conn, id);
 
   let error_response = handle_diesel_error(&result);
 
