@@ -1,29 +1,13 @@
 use crate::*;
 use helpers::users::*;
 use models::forms::*;
+use models::indexes::*;
 use models::tables::User;
 
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
-use rocket::serde::json::{json, Value};
+use rocket::serde::json::json;
 use rocket::{delete, get, post};
-use serde::Serialize;
-
-#[derive(Debug, Serialize)]
-pub struct UserIndex {
-  pub id: i64,
-  pub name: String,
-  pub email: String,
-  pub gravator_url: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct MicropostIndex {
-  pub id: i64,
-  pub content: String,
-  pub user_id: i64,
-  pub created_at: String,
-}
 
 #[get("/users")]
 pub fn index() -> ApiResponse {
