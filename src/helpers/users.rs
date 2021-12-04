@@ -78,11 +78,11 @@ pub fn get_microposts_by_user(conn: &PgConnection, user: &User) -> QueryResult<V
 }
 
 //  DELETE /users/:id
-pub fn delete_user(conn: &PgConnection, user_name: &str) -> QueryResult<User> {
+pub fn delete_user(conn: &PgConnection, user_id: i64) -> QueryResult<User> {
   use schema::users::dsl::*;
 
   let deleted_user: QueryResult<User> =
-    diesel::delete(users.filter(name.eq(user_name))).get_result(conn);
+    diesel::delete(users.filter(id.eq(user_id))).get_result(conn);
 
   deleted_user
 }

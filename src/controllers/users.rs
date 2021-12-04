@@ -1,11 +1,12 @@
 use crate::*;
 use helpers::users::*;
 use models::forms::*;
+use models::tables::User;
 
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
 use rocket::serde::json::{json, Value};
-use rocket::{get, post};
+use rocket::{delete, get, post};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -25,7 +26,7 @@ pub struct MicropostIndex {
 }
 
 #[get("/users")]
-pub fn index(current_user: UserAuthGuard) -> ApiResponse {
+pub fn index() -> ApiResponse {
   let connection = establish_connection();
 
   let result = get_all_users(&connection);
@@ -117,12 +118,7 @@ pub fn show(id: i64) -> ApiResponse {
       let microposts = get_microposts_by_user(&conn, &user);
       if microposts.is_err() {
         json = json!({
-          "id": user.id,
-          "name": user.name.clone().unwrap(),
-          "email": user.email.clone().unwrap(),
-          "created_at": user.created_at.clone().to_string(),
-          "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
-          "microposts": []
+          "message": "User is deleted successfully",
         });
       } else {
         let microposts_data = microposts
@@ -145,6 +141,45 @@ pub fn show(id: i64) -> ApiResponse {
         });
       }
 
+      ApiResponse {
+        status: Status::Ok,
+        json: json,
+      }
+    }
+    Err(_) => error_response.unwrap(),
+  };
+  response
+}
+
+#[delete("/users/<id>")]
+pub fn delete(id: i64, current_user: User) -> ApiResponse {
+  let conn = establish_connection();
+  if current_user.id != id {
+    return ApiResponse {
+      status: Status::Forbidden,
+      json: json!({
+        "error": "You are not authorized to delete this user"
+      }),
+    };
+  }
+
+  let result = delete_user(&conn, id);
+
+  let error_response = handle_diesel_error(&result);
+
+  if error_response.is_some() {
+    return error_response.unwrap();
+  }
+
+  let response = match result {
+    Ok(user) => {
+      let json = json!({
+        "id": user.id,
+        "name": user.name.clone().unwrap(),
+        "email": user.email.clone().unwrap(),
+        "created_at": user.created_at.clone().to_string(),
+        "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
+      });
       ApiResponse {
         status: Status::Ok,
         json: json,

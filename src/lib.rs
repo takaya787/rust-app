@@ -42,10 +42,7 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for ApiResponse {
 }
 
 // User認証を行うRequestGuard
-#[derive(Debug)]
-pub struct UserAuthGuard {
-  pub current_user: models::tables::User,
-}
+use models::tables::User as CurrentUser;
 
 #[derive(Debug)]
 pub enum UserAuthError {
@@ -54,7 +51,7 @@ pub enum UserAuthError {
 }
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for UserAuthGuard {
+impl<'r> FromRequest<'r> for CurrentUser {
   type Error = UserAuthError;
 
   async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
@@ -89,7 +86,7 @@ impl<'r> FromRequest<'r> for UserAuthGuard {
     let current_user = helpers::users::get_user_by_id(&conn, decoded_token.unwrap().claims.user_id);
 
     match current_user {
-      Ok(user) => Outcome::Success(UserAuthGuard { current_user: user }),
+      Ok(user) => Outcome::Success(user),
       Err(_) => Outcome::Failure((Status::Unauthorized, UserAuthError::InvalidToken)),
     }
   }
