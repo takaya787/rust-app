@@ -24,7 +24,7 @@ pub mod helpers;
 pub mod models;
 pub mod schema;
 
-// Controllerから返すレスポンスを定義
+// ControllerからJsonを返すAPI Responseを定義
 #[derive(Debug)]
 pub struct ApiResponse {
   pub json: Value,
@@ -41,17 +41,24 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for ApiResponse {
   }
 }
 
+impl ApiResponse {
+  pub fn new(status: Status, json: Value) -> ApiResponse {
+    ApiResponse { json, status }
+  }
+}
+
 // User認証を行うRequestGuard
-use models::tables::User as CurrentUser;
+use models::tables::User as LoginUser;
 
 #[derive(Debug)]
 pub enum UserAuthError {
   NotFoundToken,
   InvalidToken,
+  NotFoundUser,
 }
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for CurrentUser {
+impl<'r> FromRequest<'r> for LoginUser {
   type Error = UserAuthError;
 
   async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
@@ -87,11 +94,12 @@ impl<'r> FromRequest<'r> for CurrentUser {
 
     match current_user {
       Ok(user) => Outcome::Success(user),
-      Err(_) => Outcome::Failure((Status::Unauthorized, UserAuthError::InvalidToken)),
+      Err(_) => Outcome::Failure((Status::Unauthorized, UserAuthError::NotFoundUser)),
     }
   }
 }
 
+// Postgresへの接続を設定
 pub fn establish_connection() -> PgConnection {
   dotenv().ok();
 
@@ -106,6 +114,7 @@ pub fn get_gravator_url(email: &str) -> String {
   result
 }
 
+// QueryResultのエラーハンドリングを行う
 pub fn handle_diesel_error<T>(result: &QueryResult<T>) -> Option<ApiResponse> {
   if let Err(e) = result {
     match e {

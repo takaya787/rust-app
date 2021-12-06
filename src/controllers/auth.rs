@@ -1,12 +1,19 @@
 use crate::*;
 use helpers::auth::*;
+use helpers::comman::*;
 use models::indexes::*;
 use rocket::get;
 use rocket::serde::json::json;
 
 #[get("/auto_login")]
-pub fn auto_login(login_user: CurrentUser) -> ApiResponse {
+pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
   let connection = establish_connection();
+
+  let login_user = match key {
+    Ok(user) => user,
+    Err(err) => return handle_auth_error(err),
+  };
+
   let login_index: LoginIndex;
   let login_user_index = convert_to_login_user_index(&login_user);
   let login_user_microposts = get_user_microposts(&connection, &login_user);
