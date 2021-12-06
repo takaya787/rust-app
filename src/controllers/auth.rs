@@ -1,9 +1,40 @@
 use crate::*;
 use helpers::auth::*;
 use helpers::common::*;
+use models::forms::LoginForm;
 use models::indexes::*;
-use rocket::get;
+use rocket::form::Form;
 use rocket::serde::json::json;
+use rocket::{get, post};
+
+#[post("/login", data = "<login_form>")]
+pub fn login(login_form: Form<LoginForm<'_>>) -> ApiResponse {
+  let login_user = get_login_user(&login_form.email);
+  let error_response = handle_diesel_error(&login_user);
+
+  if error_response.is_some() {
+    return error_response.unwrap();
+  }
+
+  if let Ok(user) = login_user {
+    let bcrypt_result =
+      verify_user_password_digest(&login_form.password, user.password_digest.as_ref().unwrap());
+    if bcrypt_result.is_ok() && bcrypt_result.unwrap() {
+      return ApiResponse::new(
+        Status::Ok,
+        json!({
+          "email": user.email
+        }),
+      );
+    }
+  }
+  ApiResponse::new(
+    Status::Unauthorized,
+    json!({
+      "message": "email or password is invalid"
+    }),
+  )
+}
 
 #[get("/auto_login")]
 pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
@@ -43,6 +74,3 @@ pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
   }
   ApiResponse::new(Status::Ok, json!(login_index))
 }
-
-// #[post("/login")]
-// pub fn login() {}

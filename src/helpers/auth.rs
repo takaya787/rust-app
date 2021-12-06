@@ -1,7 +1,22 @@
 use crate::*;
+use bcrypt::{verify, BcryptResult};
 use diesel::prelude::{PgConnection, QueryResult};
 use models::indexes::*;
 use models::tables::*;
+use schema::users::dsl::*;
+
+pub fn get_login_user(user_email: &str) -> QueryResult<User> {
+  let conn = establish_connection();
+  let login_user = users
+    .filter(email.eq(user_email.to_string()))
+    .first::<User>(&conn);
+  login_user
+}
+
+pub fn verify_user_password_digest(password: &str, hash: &str) -> BcryptResult<bool> {
+  let result = verify(password.as_bytes(), hash);
+  result
+}
 
 pub fn get_user_microposts(
   conn: &PgConnection,

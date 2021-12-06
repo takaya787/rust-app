@@ -8,6 +8,12 @@ use rails_demo::controllers;
 fn rocket() -> _ {
     rocket::build().mount(
         "/api",
-        routes![users::index, users::create, users::show, auth::auto_login],
+        routes![
+            users::index,
+            users::create,
+            users::show,
+            auth::auto_login,
+            auth::login
+        ],
     )
 }
