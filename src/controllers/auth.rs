@@ -17,13 +17,19 @@ pub fn login(login_form: Form<LoginForm<'_>>) -> ApiResponse {
   }
 
   if let Ok(user) = login_user {
-    let bcrypt_result =
+    let is_verified =
       verify_user_password_digest(&login_form.password, user.password_digest.as_ref().unwrap());
-    if bcrypt_result.is_ok() && bcrypt_result.unwrap() {
+    if is_verified {
       return ApiResponse::new(
         Status::Ok,
         json!({
-          "email": user.email
+          "user":{
+            "id": user.id,
+            "email": user.email.as_ref().unwrap(),
+            "name": user.name.unwrap(),
+            "gravator_url": get_gravator_url(user.email.as_ref().unwrap()),
+           },
+           "token": create_user_token(user.id)
         }),
       );
     }

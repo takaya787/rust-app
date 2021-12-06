@@ -2,6 +2,7 @@ use crate::*;
 use rocket::http::Status;
 use rocket::serde::json::json;
 
+// Result<LoginUser, UserAuthError>専用のerror Handler
 pub fn handle_auth_error(error: UserAuthError) -> ApiResponse {
   println!("{:?}", error);
   match error {
@@ -27,4 +28,10 @@ pub fn handle_auth_error(error: UserAuthError) -> ApiResponse {
       }),
     ),
   }
+}
+
+pub fn get_gravator_url(email: &str) -> String {
+  let digest = compute(email);
+  let result = format!("https://secure.gravatar.com/avatar/{:x}", digest);
+  result
 }

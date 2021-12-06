@@ -1,9 +1,12 @@
 use crate::*;
-use bcrypt::{verify, BcryptResult};
+use bcrypt::verify;
 use diesel::prelude::{PgConnection, QueryResult};
+use helpers::common::*;
+use jsonwebtoken::{encode, EncodingKey, Header};
 use models::indexes::*;
 use models::tables::*;
 use schema::users::dsl::*;
+use serde::{Deserialize, Serialize};
 
 pub fn get_login_user(user_email: &str) -> QueryResult<User> {
   let conn = establish_connection();
@@ -13,9 +16,26 @@ pub fn get_login_user(user_email: &str) -> QueryResult<User> {
   login_user
 }
 
-pub fn verify_user_password_digest(password: &str, hash: &str) -> BcryptResult<bool> {
+pub fn create_user_token(user_id: i64) -> String {
+  #[derive(Serialize, Deserialize)]
+  struct UserToken {
+    user_id: i64,
+  }
+  let user_token = UserToken { user_id };
+  encode(
+    &Header::default(),
+    &user_token,
+    &EncodingKey::from_secret("s3cr3t".as_ref()),
+  )
+  .unwrap()
+}
+
+pub fn verify_user_password_digest(password: &str, hash: &str) -> bool {
   let result = verify(password.as_bytes(), hash);
-  result
+  match result {
+    Ok(true) => true,
+    _ => false,
+  }
 }
 
 pub fn get_user_microposts(

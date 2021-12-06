@@ -68,11 +68,11 @@ impl<'r> FromRequest<'r> for LoginUser {
     };
 
     #[derive(Debug, Deserialize)]
-    struct Token {
+    struct DecodedToken {
       user_id: i64,
     }
 
-    let decoded_token = decode::<Token>(
+    let decoded_token = decode::<DecodedToken>(
       &token,
       &DecodingKey::from_secret("s3cr3t".as_ref()),
       &Validation {
@@ -106,12 +106,6 @@ pub fn establish_connection() -> PgConnection {
   let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
   // println!("{}", database_url);
   PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
-}
-
-pub fn get_gravator_url(email: &str) -> String {
-  let digest = compute(email);
-  let result = format!("https://secure.gravatar.com/avatar/{:x}", digest);
-  result
 }
 
 // QueryResultのエラーハンドリングを行う
