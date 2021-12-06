@@ -1,6 +1,6 @@
 use crate::*;
 use helpers::auth::*;
-use helpers::comman::*;
+use helpers::common::*;
 use models::indexes::*;
 use rocket::get;
 use rocket::serde::json::json;
@@ -33,23 +33,15 @@ pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
         user: login_user_index,
         microposts: microposts_index,
       };
-
-      ApiResponse {
-        status: Status::Ok,
-        json: json!(login_index),
-      }
     }
     Err(_) => {
       login_index = LoginIndex {
         user: login_user_index,
         microposts: vec![],
       };
-      ApiResponse {
-        status: Status::InternalServerError,
-        json: json!(login_index),
-      }
     }
   }
+  ApiResponse::new(Status::Ok, json!(login_index))
 }
 
 // #[post("/login")]

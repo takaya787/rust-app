@@ -1,4 +1,5 @@
 use crate::*;
+use helpers::common::*;
 use helpers::users::*;
 use models::forms::*;
 use models::indexes::*;
@@ -33,10 +34,7 @@ pub fn index() -> ApiResponse {
           gravator_url: get_gravator_url(&user.email.as_ref().unwrap()),
         })
         .collect::<Vec<UserIndex>>();
-      ApiResponse {
-        status: Status::Ok,
-        json: json!(users_index),
-      }
+      ApiResponse::new(Status::Ok, json!(users_index))
     }
     Err(_err) => error_response.unwrap(),
   };
@@ -73,10 +71,7 @@ pub fn create(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
         "token": String::from("token"),
         }
       );
-      ApiResponse {
-        status: Status::Ok,
-        json: json,
-      }
+      ApiResponse::new(Status::Ok, json)
     }
     Err(_) => error_response.unwrap(),
   };
@@ -125,10 +120,7 @@ pub fn show(id: i64) -> ApiResponse {
         });
       }
 
-      ApiResponse {
-        status: Status::Ok,
-        json: json,
-      }
+      ApiResponse::new(Status::Ok, json)
     }
     Err(_) => error_response.unwrap(),
   };
@@ -136,17 +128,21 @@ pub fn show(id: i64) -> ApiResponse {
 }
 
 #[delete("/users/<id>")]
-pub fn delete(id: i64, current_user: User) -> ApiResponse {
-  let conn = establish_connection();
-  if current_user.id != id {
-    return ApiResponse {
-      status: Status::Forbidden,
-      json: json!({
-        "error": "You are not authorized to delete this user"
-      }),
-    };
-  }
+pub fn delete(id: i64, key: Result<LoginUser, UserAuthError>) -> ApiResponse {
+  let current_user = match key {
+    Ok(user) => user,
+    Err(err) => return handle_auth_error(err),
+  };
 
+  if current_user.id != id {
+    return ApiResponse::new(
+      Status::Forbidden,
+      json!({
+        "error": "You are not correct user"
+      }),
+    );
+  }
+  let conn = establish_connection();
   let result = delete_user(&conn, id);
 
   let error_response = handle_diesel_error(&result);
