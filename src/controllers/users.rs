@@ -3,7 +3,7 @@ use helpers::common::*;
 use helpers::users::*;
 use models::forms::*;
 use models::indexes::*;
-use models::tables::User;
+// use models::tables::User;
 
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
