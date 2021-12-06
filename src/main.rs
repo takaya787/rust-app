@@ -12,6 +12,7 @@ fn rocket() -> _ {
             users::index,
             users::create,
             users::show,
+            users::delete,
             auth::auto_login,
             auth::login
         ],

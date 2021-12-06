@@ -9,21 +9,21 @@ pub fn handle_auth_error(error: UserAuthError) -> ApiResponse {
     UserAuthError::NotFoundToken => ApiResponse::new(
       Status::Unauthorized,
       json!({
-        "error": "not found token",
+        "error": "Token is not found",
         "message": "Please login"
       }),
     ),
     UserAuthError::NotFoundUser => ApiResponse::new(
       Status::Unauthorized,
       json!({
-        "error": "not found user",
+        "error": "User is not found",
         "message": "Your account is not found"
       }),
     ),
     UserAuthError::InvalidToken => ApiResponse::new(
       Status::Unauthorized,
       json!({
-        "error": "invalid token",
+        "error": "Token is invalid",
         "message": "Your token is invalid. \n Please login again."
       }),
     ),
