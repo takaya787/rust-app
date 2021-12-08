@@ -13,8 +13,9 @@ fn rocket() -> _ {
             users::create,
             users::show,
             users::delete,
+            auth::login,
             auth::auto_login,
-            auth::login
+            auth::auto_feed,
         ],
     )
 }

@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::Serialize;
 
 // get /users　index
@@ -34,3 +35,23 @@ pub struct LoginIndex {
   pub user: LoginUserIndex,
   pub microposts: Vec<MicropostIndex>,
 }
+
+//get /auto_feed
+#[derive(Debug, Serialize)]
+pub struct MicropostFeedIndex {
+  pub id: i64,
+  pub content: String,
+  pub user_id: i64,
+  pub created_at: String,
+  pub gravator_url: String,
+  pub name: String,
+}
+
+pub type MicropostFeedType = (
+  i64,
+  Option<String>,
+  i64,
+  NaiveDateTime,
+  Option<String>,
+  Option<String>,
+);

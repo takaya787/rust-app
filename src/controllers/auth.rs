@@ -23,13 +23,8 @@ pub fn login(login_form: Form<LoginForm<'_>>) -> ApiResponse {
       return ApiResponse::new(
         Status::Ok,
         json!({
-          "user":{
-            "id": user.id,
-            "email": user.email.as_ref().unwrap(),
-            "name": user.name.unwrap(),
-            "gravator_url": get_gravator_url(user.email.as_ref().unwrap()),
-           },
-           "token": create_user_token(user.id)
+          "user": convert_to_user_index(&user),
+          "token": create_user_token(user.id)
         }),
       );
     }
@@ -79,4 +74,31 @@ pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
     }
   }
   ApiResponse::new(Status::Ok, json!(login_index))
+}
+
+// 例外的にパラメーターを大文字にする
+#[allow(non_snake_case)]
+#[get("/auto_feed?<Offset>&<Limit>")]
+pub fn auto_feed(
+  Offset: Option<i64>,
+  Limit: Option<i64>,
+  key: Result<LoginUser, UserAuthError>,
+) -> ApiResponse {
+  let login_user = match key {
+    Ok(user) => user,
+    Err(err) => return handle_auth_error(err),
+  };
+
+  let offset = Offset.unwrap_or(0);
+  let limit = Limit.unwrap_or(30);
+
+  let connection = establish_connection();
+  let following_indexes = get_following_users_indexes(&connection, &login_user);
+  let result: Vec<MicropostFeedIndex>;
+  match get_microposts_feed_from_users_indexes(&connection, following_indexes, offset, limit) {
+    Ok(microposts_feed) => result = convert_microposts_feed_to_index(microposts_feed),
+    Err(_) => result = vec![],
+  }
+
+  ApiResponse::new(Status::Ok, json!({ "microposts": json!(result) }))
 }
