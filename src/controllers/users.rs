@@ -1,27 +1,13 @@
-use crate::{helpers, rails_demo};
+use crate::*;
+use helpers::common::*;
 use helpers::users::*;
 use models::forms::*;
-use rails_demo::*;
+use models::indexes::*;
+
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
-use rocket::serde::json::{json, Value};
-use serde::Serialize;
-
-#[derive(Debug, Serialize)]
-pub struct UserIndex {
-  pub id: i64,
-  pub name: String,
-  pub email: String,
-  pub gravator_url: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct MicropostIndex {
-  pub id: i64,
-  pub content: String,
-  pub user_id: i64,
-  pub created_at: String,
-}
+use rocket::serde::json::json;
+use rocket::{delete, get, post};
 
 #[get("/users")]
 pub fn index() -> ApiResponse {
@@ -47,10 +33,7 @@ pub fn index() -> ApiResponse {
           gravator_url: get_gravator_url(&user.email.as_ref().unwrap()),
         })
         .collect::<Vec<UserIndex>>();
-      ApiResponse {
-        status: Status::Ok,
-        json: json!(users_index),
-      }
+      ApiResponse::new(Status::Ok, json!(users_index))
     }
     Err(_err) => error_response.unwrap(),
   };
@@ -87,10 +70,7 @@ pub fn create(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
         "token": String::from("token"),
         }
       );
-      ApiResponse {
-        status: Status::Ok,
-        json: json,
-      }
+      ApiResponse::new(Status::Ok, json)
     }
     Err(_) => error_response.unwrap(),
   };
@@ -101,7 +81,7 @@ pub fn create(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
 pub fn show(id: i64) -> ApiResponse {
   let conn = establish_connection();
 
-  let result = show_user(&conn, id);
+  let result = get_user_by_id(&conn, id);
 
   let error_response = handle_diesel_error(&result);
 
@@ -116,12 +96,7 @@ pub fn show(id: i64) -> ApiResponse {
       let microposts = get_microposts_by_user(&conn, &user);
       if microposts.is_err() {
         json = json!({
-          "id": user.id,
-          "name": user.name.clone().unwrap(),
-          "email": user.email.clone().unwrap(),
-          "created_at": user.created_at.clone().to_string(),
-          "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
-          "microposts": []
+          "message": "User is deleted successfully",
         });
       } else {
         let microposts_data = microposts
@@ -144,6 +119,46 @@ pub fn show(id: i64) -> ApiResponse {
         });
       }
 
+      ApiResponse::new(Status::Ok, json)
+    }
+    Err(_) => error_response.unwrap(),
+  };
+  response
+}
+
+#[delete("/users/<id>")]
+pub fn delete(id: i64, key: Result<LoginUser, UserAuthError>) -> ApiResponse {
+  let current_user = match key {
+    Ok(user) => user,
+    Err(err) => return handle_auth_error(err),
+  };
+
+  if current_user.id != id {
+    return ApiResponse::new(
+      Status::Forbidden,
+      json!({
+        "error": "You are not correct user"
+      }),
+    );
+  }
+  let conn = establish_connection();
+  let result = delete_user(&conn, id);
+
+  let error_response = handle_diesel_error(&result);
+
+  if error_response.is_some() {
+    return error_response.unwrap();
+  }
+
+  let response = match result {
+    Ok(user) => {
+      let json = json!({
+        "id": user.id,
+        "name": user.name.clone().unwrap(),
+        "email": user.email.clone().unwrap(),
+        "created_at": user.created_at.clone().to_string(),
+        "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
+      });
       ApiResponse {
         status: Status::Ok,
         json: json,

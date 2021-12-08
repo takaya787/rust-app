@@ -1,6 +1,6 @@
 use crate::diesel::prelude::*;
 use crate::models::tables::{Micropost, User};
-use crate::rails_demo::*;
+use crate::*;
 
 // return のtype Alias
 pub type MicropostsTypeEachUser = std::vec::Vec<(
