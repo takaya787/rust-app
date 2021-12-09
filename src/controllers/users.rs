@@ -157,7 +157,7 @@ pub fn delete(id: i64, key: Result<LoginUser, UserAuthError>) -> ApiResponse {
         "name": user.name.clone().unwrap(),
         "email": user.email.clone().unwrap(),
         "created_at": user.created_at.clone().to_string(),
-        "gravator_url": get_gravator_url(&user.email.as_ref().unwrap()),
+        "gravator_url": get_gravator_url(user.email.as_ref().unwrap()),
       });
       ApiResponse {
         status: Status::Ok,

@@ -38,7 +38,7 @@ pub fn create_user<'a>(conn: &PgConnection, userform: &UserForm) -> QueryResult<
 
   let new_user = NewUser {
     name: Some(String::from(userform.name)),
-    email: Some(String::from(userform.email)),
+    email: Some(userform.email.to_lowercase()),
     created_at: Utc::now().naive_utc(),
     updated_at: Utc::now().naive_utc(),
     password_digest: Some(String::from(password_hash)),

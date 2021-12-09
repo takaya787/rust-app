@@ -9,7 +9,7 @@ use rocket::{get, post};
 
 #[post("/login", data = "<login_form>")]
 pub fn login(login_form: Form<LoginForm<'_>>) -> ApiResponse {
-  let login_user = get_login_user(&login_form.email);
+  let login_user = get_login_user(&login_form.email.to_lowercase());
   let error_response = handle_diesel_error(&login_user);
 
   if error_response.is_some() {
