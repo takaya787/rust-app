@@ -1,10 +1,10 @@
-use crate::{app, models, schema};
-use app::*;
+use crate::*;
+
 use bcrypt::{hash, DEFAULT_COST};
 use chrono::Utc;
-use diesel::prelude::*;
+use diesel::prelude::{PgConnection, QueryResult};
 use models::forms::UserForm;
-use models::tables::{NewUser, User};
+use models::tables::{Micropost, NewUser, User};
 use rocket::form::{Contextual, Form};
 use rocket::http::Status;
 use rocket::serde::json::json;
@@ -55,12 +55,34 @@ pub fn create_user<'a>(conn: &PgConnection, userform: &UserForm) -> QueryResult<
     .get_result::<User>(conn)
 }
 
-//  DELETE /users/{:id}
-pub fn delete_user(conn: &PgConnection, user_name: &str) -> QueryResult<User> {
+// GET /users/:id
+pub fn get_user_by_id(conn: &PgConnection, user_id: i64) -> QueryResult<User> {
+  use schema::users::dsl::*;
+
+  let result = users
+    .filter(id.eq(user_id))
+    .filter(activated.eq(true))
+    .first::<User>(conn);
+
+  result
+}
+
+pub fn get_microposts_by_user(conn: &PgConnection, user: &User) -> QueryResult<Vec<Micropost>> {
+  use schema::microposts::dsl::*;
+
+  let results = microposts
+    .filter(user_id.eq(user.id))
+    .load::<Micropost>(conn);
+
+  results
+}
+
+//  DELETE /users/:id
+pub fn delete_user(conn: &PgConnection, user_id: i64) -> QueryResult<User> {
   use schema::users::dsl::*;
 
   let deleted_user: QueryResult<User> =
-    diesel::delete(users.filter(name.eq(user_name))).get_result(conn);
+    diesel::delete(users.filter(id.eq(user_id))).get_result(conn);
 
   deleted_user
 }
