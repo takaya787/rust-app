@@ -10,7 +10,7 @@ use rocket::http::Status;
 use rocket::serde::json::json;
 
 // Helper function to valdate a user form
-pub fn validate_user_form(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
+pub fn handle_user_form_validation(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
   let err_item = user_form.context.errors().next().unwrap();
   let key: String = err_item.name.as_ref().unwrap().to_string();
   let value: String = err_item.kind.to_string();

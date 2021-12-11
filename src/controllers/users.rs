@@ -45,7 +45,7 @@ pub fn create(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
   let conn = establish_connection();
 
   if user_form.value.as_ref().is_none() {
-    return validate_user_form(user_form);
+    return handle_user_form_validation(user_form);
   }
 
   let result = create_user(&conn, user_form.value.as_ref().unwrap());
