@@ -1,7 +1,6 @@
 use crate::*;
 use helpers::auth::*;
 use helpers::common::*;
-use helpers::fetch_microposts::*;
 use models::forms::LoginForm;
 use models::indexes::*;
 use rocket::form::Form;
@@ -46,8 +45,6 @@ pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
     Ok(user) => user,
     Err(err) => return handle_auth_error(err),
   };
-
-  show_followers();
 
   let login_index: LoginIndex;
   let login_user_index = convert_to_login_user_index(&login_user);
