@@ -1,5 +1,5 @@
 use crate::diesel::prelude::*;
-use crate::models::tables::{Micropost, User};
+use crate::models::tables::{ActiveRelationship, Micropost, User};
 use crate::*;
 
 // return のtype Alias
@@ -61,21 +61,14 @@ pub fn fetch_feed_relationship() {
 
   let first_user = get_first_user();
 
-  let _following_users_count = relationships::dsl::relationships
-    .filter(relationships::dsl::follower_id.eq(Some(first_user.id as i32)))
-    .count()
-    .get_result::<i64>(&connection);
-
-  let following_users_index = relationships::dsl::relationships
-    .filter(relationships::dsl::follower_id.eq(Some(first_user.id as i32)))
+  let following_users_index = ActiveRelationship::belonging_to(&first_user)
     .select(relationships::dsl::followed_id)
-    .load::<Option<i32>>(&connection)
+    .load::<i64>(&connection)
     .unwrap()
     .into_iter()
-    .map(|x| x.unwrap() as i64)
     .collect::<Vec<i64>>();
 
-  let following_users = users::dsl::users
+  let following_users = users::table
     .filter(users::dsl::id.eq_any(following_users_index))
     .load::<User>(&connection)
     .expect("following_users is not found");

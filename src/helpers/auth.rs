@@ -74,15 +74,13 @@ pub fn convert_to_login_user_index(login_user: &User) -> LoginUserIndex {
 
 // GET "/auto_feed" 用のhelpers
 pub fn get_following_users_indexes(conn: &PgConnection, current_user: &User) -> Vec<i64> {
-  use schema::relationships;
+  use schema::relationships::dsl::*;
 
-  let following_users_index = relationships::table
-    .filter(relationships::dsl::follower_id.eq(Some(current_user.id as i32)))
-    .select(relationships::dsl::followed_id)
-    .load::<Option<i32>>(conn)
+  let following_users_index = ActiveRelationship::belonging_to(current_user)
+    .select(followed_id)
+    .load::<i64>(conn)
     .unwrap()
     .into_iter()
-    .map(|x| x.unwrap() as i64)
     .collect::<Vec<i64>>();
 
   following_users_index
@@ -99,7 +97,6 @@ pub fn get_microposts_feed_from_users_indexes(
   let microposts_feed = users::table
     .inner_join(microposts::table)
     .filter(users::dsl::id.eq_any(indexes))
-    .limit(10)
     .select((
       microposts::dsl::id,
       microposts::dsl::content,

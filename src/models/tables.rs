@@ -45,6 +45,7 @@ pub struct Micropost {
   pub updated_at: NaiveDateTime,
 }
 
+// 元のRelationship model
 // #[derive(Debug, Queryable, Identifiable)]
 // #[table_name = "relationships"]
 // pub struct Relationship {
