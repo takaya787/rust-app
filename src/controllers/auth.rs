@@ -1,6 +1,7 @@
 use crate::*;
 use helpers::auth::*;
 use helpers::common::*;
+use helpers::fetch_microposts::*;
 use models::forms::LoginForm;
 use models::indexes::*;
 use rocket::form::Form;
@@ -9,7 +10,7 @@ use rocket::{get, post};
 
 #[post("/login", data = "<login_form>")]
 pub fn login(login_form: Form<LoginForm<'_>>) -> ApiResponse {
-  let login_user = get_login_user(&login_form.email);
+  let login_user = get_login_user(&login_form.email.to_lowercase());
   let error_response = handle_diesel_error(&login_user);
 
   if error_response.is_some() {
@@ -45,6 +46,8 @@ pub fn auto_login(key: Result<LoginUser, UserAuthError>) -> ApiResponse {
     Ok(user) => user,
     Err(err) => return handle_auth_error(err),
   };
+
+  show_followers();
 
   let login_index: LoginIndex;
   let login_user_index = convert_to_login_user_index(&login_user);

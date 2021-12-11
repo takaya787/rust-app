@@ -10,7 +10,7 @@ use rocket::http::Status;
 use rocket::serde::json::json;
 
 // Helper function to valdate a user form
-pub fn validate_user_form(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
+pub fn handle_user_form_validation(user_form: Form<Contextual<'_, UserForm>>) -> ApiResponse {
   let err_item = user_form.context.errors().next().unwrap();
   let key: String = err_item.name.as_ref().unwrap().to_string();
   let value: String = err_item.kind.to_string();
@@ -38,7 +38,7 @@ pub fn create_user<'a>(conn: &PgConnection, userform: &UserForm) -> QueryResult<
 
   let new_user = NewUser {
     name: Some(String::from(userform.name)),
-    email: Some(String::from(userform.email)),
+    email: Some(userform.email.to_lowercase()),
     created_at: Utc::now().naive_utc(),
     updated_at: Utc::now().naive_utc(),
     password_digest: Some(String::from(password_hash)),

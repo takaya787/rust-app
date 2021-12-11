@@ -45,34 +45,35 @@ pub struct Micropost {
   pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Queryable, Identifiable)]
+// 元のRelationship model
+// #[derive(Debug, Queryable, Identifiable)]
+// #[table_name = "relationships"]
+// pub struct Relationship {
+//   pub id: i64,
+//   pub follower_id: Option<i32>,
+//   pub followed_id: Option<i32>,
+//   pub created_at: NaiveDateTime,
+//   pub updated_at: NaiveDateTime,
+// }
+
+#[derive(Debug, Queryable, Identifiable, Associations)]
+#[belongs_to(User, foreign_key = "follower_id")]
 #[table_name = "relationships"]
-pub struct Relationship {
+pub struct ActiveRelationship {
   pub id: i64,
-  pub follower_id: Option<i32>,
-  pub followed_id: Option<i32>,
+  pub follower_id: i64,
+  pub followed_id: i64,
   pub created_at: NaiveDateTime,
   pub updated_at: NaiveDateTime,
 }
 
-// #[derive(Debug, Queryable, Identifiable, Associations)]
-// #[belongs_to(User, foreign_key = "follower_id" as i64)]
-// #[table_name = "relationships"]
-// pub struct Following {
-//   pub id: i64,
-//   pub follower_id: Option<i32>,
-//   pub followed_id: Option<i32>,
-//   pub created_at: NaiveDateTime,
-//   pub updated_at: NaiveDateTime,
-// }
-
-// #[derive(Debug, Queryable, Identifiable, Associations)]
-// #[belongs_to(User, foreign_key = "followed_id" as i64)]
-// #[table_name = "relationships"]
-// pub struct Followed {
-//   pub id: i64,
-//   pub follower_id: Option<i32>,
-//   pub followed_id: Option<i32>,
-//   pub created_at: NaiveDateTime,
-//   pub updated_at: NaiveDateTime,
-// }
+#[derive(Debug, Queryable, Identifiable, Associations)]
+#[belongs_to(User, foreign_key = "followed_id")]
+#[table_name = "relationships"]
+pub struct PassiveRelationship {
+  pub id: i64,
+  pub follower_id: i64,
+  pub followed_id: i64,
+  pub created_at: NaiveDateTime,
+  pub updated_at: NaiveDateTime,
+}

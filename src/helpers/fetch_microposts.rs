@@ -1,5 +1,5 @@
 use crate::diesel::prelude::*;
-use crate::models::tables::{Micropost, User};
+use crate::models::tables::{ActiveRelationship, Micropost, PassiveRelationship, User};
 use crate::*;
 
 // return のtype Alias
@@ -61,21 +61,14 @@ pub fn fetch_feed_relationship() {
 
   let first_user = get_first_user();
 
-  let _following_users_count = relationships::dsl::relationships
-    .filter(relationships::dsl::follower_id.eq(Some(first_user.id as i32)))
-    .count()
-    .get_result::<i64>(&connection);
-
-  let following_users_index = relationships::dsl::relationships
-    .filter(relationships::dsl::follower_id.eq(Some(first_user.id as i32)))
+  let following_users_index = ActiveRelationship::belonging_to(&first_user)
     .select(relationships::dsl::followed_id)
-    .load::<Option<i32>>(&connection)
+    .load::<i64>(&connection)
     .unwrap()
     .into_iter()
-    .map(|x| x.unwrap() as i64)
     .collect::<Vec<i64>>();
 
-  let following_users = users::dsl::users
+  let following_users = users::table
     .filter(users::dsl::id.eq_any(following_users_index))
     .load::<User>(&connection)
     .expect("following_users is not found");
@@ -91,4 +84,48 @@ pub fn fetch_feed_relationship() {
 
   // println!("following_users: {:?}", following_users);
   println!("feed_microposts {:?}", following_users_feed);
+}
+
+pub fn show_followers() {
+  use schema::*;
+  let connection = establish_connection();
+
+  let users = users::table
+    .filter(users::dsl::activated.eq(true))
+    .limit(10)
+    .load::<User>(&connection)
+    .unwrap();
+
+  let active_relationships = ActiveRelationship::belonging_to(&users)
+    .load::<ActiveRelationship>(&connection)
+    .unwrap()
+    .grouped_by(&users)
+    .into_iter()
+    .map(|relationships| relationships.len())
+    .collect::<Vec<_>>();
+
+  let passive_relationships = PassiveRelationship::belonging_to(&users)
+    .load::<PassiveRelationship>(&connection)
+    .unwrap()
+    .grouped_by(&users)
+    .into_iter()
+    .map(|relationships| relationships.len())
+    .collect::<Vec<_>>();
+
+  let relationships = active_relationships
+    .into_iter()
+    .zip(passive_relationships)
+    .collect::<Vec<_>>();
+
+  let data = users.into_iter().zip(relationships).collect::<Vec<_>>();
+
+  println!("followers_data with each user = {:?}", data);
+
+  // println!("followers: {:?}", followers);
+
+  // let followers_feed = Micropost::belonging_to(&followers)
+  //   .count()
+  //   .get_result::<i64>(&connection);
+
+  // println!("followers_feed: {:?}", followers_feed);
 }
