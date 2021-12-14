@@ -16,6 +16,7 @@ fn rocket() -> _ {
             auth::login,
             auth::auto_login,
             auth::auto_feed,
+            microposts::create,
         ],
     )
 }

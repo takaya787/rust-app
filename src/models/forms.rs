@@ -17,3 +17,8 @@ pub struct LoginForm<'r> {
   pub email: &'r str,
   pub password: &'r str,
 }
+
+#[derive(Debug, Deserialize, FromForm)]
+pub struct MicropostForm<'r> {
+  pub content: &'r str,
+}

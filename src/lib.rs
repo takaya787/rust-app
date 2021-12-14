@@ -9,7 +9,6 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use dotenv::dotenv;
 use jsonwebtoken::{decode, DecodingKey, Validation};
-use md5::compute;
 use rocket::http::{ContentType, Status};
 use rocket::request::{FromRequest, Outcome, Request};
 use rocket::response;
@@ -80,10 +79,6 @@ impl<'r> FromRequest<'r> for LoginUser {
         ..Default::default()
       },
     );
-    // println!(
-    //   "decoded_token: {:?}",
-    //   decoded_token.as_ref().unwrap().claims
-    // );
 
     if let Err(_) = decoded_token {
       return Outcome::Failure((Status::Unauthorized, UserAuthError::InvalidToken));

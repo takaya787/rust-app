@@ -1,4 +1,5 @@
 use crate::*;
+use md5::compute;
 use rocket::http::Status;
 use rocket::serde::json::json;
 
