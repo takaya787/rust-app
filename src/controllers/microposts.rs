@@ -1,27 +1,28 @@
 use crate::*;
-// use diesel::prelude::{PgConnection, QueryResult};
-// use helpers::common::*;
+use helpers::common::*;
 use helpers::microposts::*;
-// use models::tables::*;
+use models::forms::*;
 
+use rocket::form::Form;
 use rocket::http::Status;
-use rocket::serde::json::{json, Value};
-use rocket::{delete, get, post};
+use rocket::serde::json::json;
+use rocket::{get, post};
+
 use serde::Serialize;
+
+#[derive(Debug, Serialize)]
+struct MicropostIndex {
+  id: i64,
+  content: String,
+  user_id: i64,
+  created_at: String,
+  updated_at: String,
+}
 
 #[get("/microposts")]
 pub fn index() -> ApiResponse {
   let connection = establish_connection();
   let all_microposts = get_all_microposts(&connection);
-
-  #[derive(Debug, Serialize)]
-  struct MicropostIndex {
-    id: i64,
-    content: String,
-    user_id: i64,
-    created_at: String,
-    updated_at: String,
-  }
 
   match all_microposts {
     Ok(microposts) => {
@@ -41,8 +42,34 @@ pub fn index() -> ApiResponse {
   }
 }
 
-#[post("/microposts")]
-pub fn create() -> ApiResponse {
-  // let connection = establish_connection();
-  ApiResponse::new(Status::Created, json!({"microposts": "create"}))
+#[post("/microposts", data = "<micropost_form>")]
+pub fn create(
+  micropost_form: Form<MicropostForm>,
+  key: Result<LoginUser, UserAuthError>,
+) -> ApiResponse {
+  let login_user = match key {
+    Ok(user) => user,
+    Err(err) => return handle_auth_error(err),
+  };
+
+  let conn = establish_connection();
+
+  let result = create_micropost(&conn, micropost_form, &login_user);
+
+  match result {
+    Ok(micropost) => {
+      let micropost_index = MicropostIndex {
+        id: micropost.id,
+        content: micropost.content.unwrap(),
+        user_id: micropost.user_id,
+        created_at: micropost.created_at.to_string(),
+        updated_at: micropost.updated_at.to_string(),
+      };
+      ApiResponse::new(
+        Status::Created,
+        json!({ "micropost": micropost_index, "message": "micropost is successfully created" }),
+      )
+    }
+    Err(e) => ApiResponse::new(Status::UnprocessableEntity, json!({"error": e.to_string()})),
+  }
 }

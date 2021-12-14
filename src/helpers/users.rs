@@ -82,6 +82,7 @@ pub fn get_microposts_by_user(conn: &PgConnection, user: &User) -> QueryResult<V
 
   let results = microposts
     .filter(user_id.eq(user.id))
+    .order(id.desc())
     .load::<Micropost>(conn);
 
   results

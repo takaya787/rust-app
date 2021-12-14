@@ -18,6 +18,7 @@ pub struct User {
   pub reset_sent_at: Option<NaiveDateTime>,
 }
 
+// User model to insert into database
 #[derive(Debug, Queryable, Insertable)]
 #[table_name = "users"]
 pub struct NewUser {
@@ -45,7 +46,17 @@ pub struct Micropost {
   pub updated_at: NaiveDateTime,
 }
 
-// 元のRelationship model
+// Micropost model to insert into database
+#[derive(Debug, Queryable, Insertable)]
+#[table_name = "microposts"]
+pub struct NewMicropost {
+  pub content: Option<String>,
+  pub user_id: i64,
+  pub created_at: NaiveDateTime,
+  pub updated_at: NaiveDateTime,
+}
+
+// Original Relationship model
 // #[derive(Debug, Queryable, Identifiable)]
 // #[table_name = "relationships"]
 // pub struct Relationship {
