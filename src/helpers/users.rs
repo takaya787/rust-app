@@ -49,18 +49,18 @@ impl NewUser {
   }
 }
 
-pub fn create_user<'a>(conn: &PgConnection, userform: &UserForm) -> QueryResult<User> {
-  use schema::users;
+pub fn create_user(conn: &PgConnection, userform: &UserForm) -> QueryResult<User> {
+  use schema::users::dsl::*;
 
-  let password_digest = hash(userform.password, DEFAULT_COST).expect("Error hashing password");
+  let user_password_digest = hash(userform.password, DEFAULT_COST).expect("Error hashing password");
 
   let new_user = NewUser::create(
     userform.name,
     userform.email.to_lowercase(),
-    String::from(password_digest),
+    String::from(user_password_digest),
   );
 
-  diesel::insert_into(users::table)
+  diesel::insert_into(users)
     .values(&new_user)
     .get_result::<User>(conn)
 }
