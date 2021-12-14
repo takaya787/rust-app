@@ -15,11 +15,11 @@ As an **Rails developer**, I have realized how great the `shoulders of the Rails
 
 ◆ 　 User Functions
 
-- create, delete , login, logout
+- create, delete , show
 
 ◆ 　 Micropost Functions
 
-- create, delete , edit
+- create,
 
 ◆ 　 Auth Functions
 
@@ -51,16 +51,6 @@ paths:
       description: to get microposts feed of following users
       tags:
         - Api::Auth
-  "/api/microposts":
-    post:
-      summary: create
-      tags:
-        - Api::Micropost
-  "/api/microposts/{id}":
-    put:
-      summary: update
-      tags:
-        - Api::Micropost
   "/api/users":
     get:
       summary: index
@@ -70,6 +60,20 @@ paths:
       summary: create
       tags:
         - Api::User
+  "/api/users/{id}":
+    get:
+      summary: show
+      tags:
+        - Api::User
+    delete:
+      summary: delete
+      tags:
+        - Api::User
+  "/api/microposts":
+    post:
+      summary: create
+      tags:
+        - Api::Micropost
 ```
 
 ## Requirements
